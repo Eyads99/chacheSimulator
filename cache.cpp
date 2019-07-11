@@ -75,9 +75,9 @@ cacheResType cacheSimDM(unsigned int addr)
     unsigned int map = addr % NoL;  //LINESIZE undefined TODO    //(#Blocks in cache)
     if (cache[map] % 2 == 0)//if invalid
     {
-        int offesb= log2(LINESIZE);
+        int offesb= log2(LINESIZE);//log2: Returns the binary (base-2) logarithm of x
         cache[map] = addr / CACHE_SIZE;//this gets the tag
-        /*cache[map]=*/cache[map] << 1;//making space for the one bit for valid
+        cache[map] << 1;//making space for the one bit for valid
         cache[map] += 1;//making valid
         //TODO DATA PART
         cout << "¡CACHE VALIDATED!" << endl;
@@ -90,12 +90,10 @@ cacheResType cacheSimDM(unsigned int addr)
         cache[map] += 1;//making valid
         cout << "¡CACHE OVERWRITE!" << endl;
         return MISS;
-
     }
     else
         return HIT;
     // The current implementation assumes there is no cache; so, every transaction is a miss
-
     //return MISS;
 }
 
@@ -108,14 +106,39 @@ int main()
     unsigned int hit = 0;
     cacheResType r;
     unsigned int addr;
+    char MG;
 
     cout << "What linesize do you want to use in bytes? (binary number from 4-128)\n";
     cin >> LINESIZE;
+    cout<<"what Memory generator would you like (between A-F)\n";
+    cin>>MG;
     cout << "Direct Mapped Cache Simulator\n";
+
 
     for (int inst = 0; inst < NO_OF_Iterations; inst++)
     {
-        addr = memGenB();
+        //addr = memGenB();
+        switch (MG)
+        {
+            case a:
+            case A:
+                addr=memGenA();break;
+            case b:
+            case B:
+                addr=memGenB();break;
+            case c:
+            case C:
+                addr=memGenC()break;
+            case d:
+            case D:
+                addr=memGenD();break;
+            case e:
+            case E:
+                addr=memGenE();break;
+            case f:
+            case F:
+                addr=memGenF();break;
+        }
         r = cacheSimDM(addr);
         if (r == HIT) hit++;
         cout << "0x" << setfill('0') << setw(8) << hex << addr << " (" << msg[r] << ")\n";
