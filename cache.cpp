@@ -63,37 +63,44 @@ unsigned int memGenF()
     return (addr += 64) % (128 * 1024);
 }
 
-
 // Direct Mapped Cache Simulator
 cacheResType cacheSimDM(unsigned int addr)
 {
     // This function accepts the memory address for the memory transaction and
     // returns whether it caused a cache miss or a cache hit
-    //New stuff from Eyad cache will work by having the valid bit as the least significant bit then the tag then the data
-    unsigned int NoL = CACHE_SIZE / LINESIZE;
-    static unsigned int cache[CACHE_SIZE] = {};
-    unsigned int map = addr % NoL;  //LINESIZE undefined TODO    //(#Blocks in cache)
-    if (cache[map] % 2 == 0)//if invalid
+    unsigned int NoL = CACHE_SIZE / LINESIZE;//number of lines
+    static signed int cache[16384] = {};//initializing the cache as all 0s to make all locations invalid and putting in the max NoL
+    unsigned int offesb = (log2(LINESIZE));//log2: Returns the binary (base-2) logarithm of x MIGHT BE TOO LARGE
+    
+    
+    //addr = addr>>2;//this removes the byte offset of the data 
+    unsigned int map = (addr>>(int)offesb) % NoL;  //LINESIZE undefined TODO    //(#Blocks in cache)
+    /*if (cache[map] % 2 == 0)//if invalid
     {
-        int offesb= log2(LINESIZE);//log2: Returns the binary (base-2) logarithm of x
-        cache[map] = addr / CACHE_SIZE;//this gets the tag
-        cache[map] << 1;//making space for the one bit for valid
-        cache[map] += 1;//making valid
+        cache[map] = (addr>>offesb) /NoL;//this gets the tag while ignoring the byte and word offset
+        //cache[map] << 1;//making space for the one bit for valid
+        //cache[map] += 1;//making valid  
         //TODO DATA PART
         cout << "¡CACHE VALIDATED!" << endl;
         return MISS;
     }
-    else if (((cache[map] >> 1)&0xffff) != (addr / CACHE_SIZE))//if tag is incorrect
+
+    else*/ if (((cache[map] /*>> 1*/)/*&0xffff*/) != ((addr>>16/*offesb) / NoL*/)))//if tag is incorrect
     {
-        cache[map] = addr /NoL;//this gets the tag
-        cache[map] << 1;//making space for the one bit for valid
-        cache[map] += 1;//making valid
+        cache[map] = addr>>16/*offesb) /NoL*/;//this gets the tag while ignoring the byte and word offset
+        //cache[map] << 1;//making space for the one bit for valid
+        //cache[map] += 1;//making valid
         cout << "¡CACHE OVERWRITE!" << endl;
         return MISS;
     }
+
     else
+        {//cout<<cache[map]<<endl;
+    	cout<<map<<endl;
+        //cout<< (addr>>16)<<endl;
+        //cout<< (addr>>offesb) /NoL<<endl;
         return HIT;
-    // The current implementation assumes there is no cache; so, every transaction is a miss
+    }// The current implementation assumes there is no cache; so, every transaction is a miss
     //return MISS;
 }
 
@@ -106,11 +113,11 @@ int main()
     unsigned int hit = 0;
     cacheResType r;
     unsigned int addr;
-    char MG;
+    char MG;//To select between the memory generators
 
     cout << "What linesize do you want to use in bytes? (binary number from 4-128)\n";
     cin >> LINESIZE;
-    cout<<"what Memory generator would you like (between A-F)\n";
+    cout<<"What Memory generator would you like (between A-F)\n";
     cin>>MG;
     cout << "Direct Mapped Cache Simulator\n";
 
@@ -120,23 +127,23 @@ int main()
         //addr = memGenB();
         switch (MG)
         {
-            case a:
-            case A:
+            case 'a':
+            case 'A':
                 addr=memGenA();break;
-            case b:
-            case B:
+            case 'b':
+            case 'B':
                 addr=memGenB();break;
-            case c:
-            case C:
-                addr=memGenC()break;
-            case d:
-            case D:
+            case 'c':
+            case 'C':
+                addr=memGenC();break;
+            case 'd':
+            case 'D':
                 addr=memGenD();break;
-            case e:
-            case E:
+            case 'e':
+            case 'E':
                 addr=memGenE();break;
-            case f:
-            case F:
+            case 'f':
+            case 'F':
                 addr=memGenF();break;
         }
         r = cacheSimDM(addr);
