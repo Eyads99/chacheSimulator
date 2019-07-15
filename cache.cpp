@@ -1,7 +1,7 @@
 #include <iostream>
-#include  <iomanip>
-    #include <math.h>
-
+#include <iomanip>
+#include <math.h>
+#include <algorithm>
 
 using namespace std;
 
@@ -10,6 +10,7 @@ using namespace std;
 #define		CACHE_SIZE		(64*1024) //fixed
 
 unsigned int LINESIZE;
+static signed int cache[16384] ;//cache at it's maximum number of lines 
 
 enum cacheResType { MISS = 0, HIT = 1 };
 
@@ -69,7 +70,7 @@ cacheResType cacheSimDM(unsigned int addr)
     // This function accepts the memory address for the memory transaction and
     // returns whether it caused a cache miss or a cache hit
     unsigned int NoL = CACHE_SIZE / LINESIZE;//number of lines
-    static signed int cache[16384] = {};//initializing the cache as all 0s to make all locations invalid and putting in the max NoL
+    //static signed int cache[16384] = {};//initializing the cache as all 0s to make all locations invalid and putting in the max NoL
     unsigned int offesb = (log2(LINESIZE));//log2: Returns the binary (base-2) logarithm of x MIGHT BE TOO LARGE
     
     
@@ -107,20 +108,20 @@ cacheResType cacheSimDM(unsigned int addr)
 
 char *msg[2] = { (char*)"Miss",(char*)"Hit" };//Array to cout if something is a hit or a miss
 
-#define		NO_OF_Iterations	10000	// Change to 1,000,000
+#define		NO_OF_Iterations	1000000	// Change to 1,000,000
 int main()
 {
     unsigned int hit = 0;
     cacheResType r;
     unsigned int addr;
-    char MG;//To select between the memory generators
+    char MG;//To select between the Memory Generators
 
+    fill_n(cache,16384,-1);
     cout << "What linesize do you want to use in bytes? (binary number from 4-128)\n";
     cin >> LINESIZE;
     cout<<"What Memory generator would you like (between A-F)\n";
     cin>>MG;
     cout << "Direct Mapped Cache Simulator\n";
-
 
     for (int inst = 0; inst < NO_OF_Iterations; inst++)
     {
