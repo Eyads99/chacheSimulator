@@ -98,7 +98,7 @@ cacheResType cacheSimDM(unsigned int addr)
 	}
 	else//This is a hit
 	{	
-		cout << map << endl;
+		//cout << map << endl;
 		return HIT;
 	}
 }
