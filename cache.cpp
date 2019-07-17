@@ -151,5 +151,4 @@ int main()
 		cout << "0x" << setfill('0') << setw(8) << hex << addr << " (" << msg[r] << ")\n";//print the address
 	}
 	cout << "Hit ratio = " << (100.0*hit / NO_OF_Iterations) << endl;
-	//cout<<CACHE_SIZE/LINESIZE;
 }
