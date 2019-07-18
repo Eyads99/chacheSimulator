@@ -1,7 +1,6 @@
 #include <iostream>
 #include <iomanip>
 #include <math.h>
-//#include <algorithm>
 
 using namespace std;
 
@@ -73,7 +72,7 @@ unsigned int memGenVal0()//validation memory generator that always increses the 
 unsigned int memGenVal1()//validation memory generator that always increses the memory location by 64
 {
 	static unsigned int addr = 0;
-	return (addr+=64) % (DRAM_SIZE / 4); 
+	return (addr+=127	) % (DRAM_SIZE / 4); 
 }
 
 
@@ -107,7 +106,7 @@ cacheResType cacheSimDM(unsigned int addr)
 	}
 	else
 	{	
-		cout << map << endl;
+		//cout << map << endl;
 		//cout<< (addr>>16)<<endl;
 		//cout<< (addr>>offesb) /NoL<<endl;
 		return HIT;
@@ -116,7 +115,7 @@ cacheResType cacheSimDM(unsigned int addr)
 
 char *msg[2] = { (char*)"Miss",(char*)"Hit" };//Array to cout if something is a hit or a miss
 
-#define		NO_OF_Iterations	1000000	
+#define		NO_OF_Iterations	1000000
 int main()
 {
 	unsigned int hit = 0;
@@ -163,5 +162,6 @@ int main()
 		cout << "0x" << setfill('0') << setw(8) << hex << addr << " (" << msg[r] << ")\n";
 	}
 	cout << "Hit ratio = " << (100.0*hit / NO_OF_Iterations) << endl;
+	cout << "Miss ratio = " << 100-(100.0*hit / NO_OF_Iterations) << endl;
 	//cout<<CACHE_SIZE/LINESIZE;
 }
