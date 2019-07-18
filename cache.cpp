@@ -1,6 +1,7 @@
 #include <iostream>
 #include <iomanip>
 #include <math.h>
+//#include <algorithm>
 
 using namespace std;
 
@@ -63,29 +64,37 @@ unsigned int memGenF()
 	return (addr += 64) % (128 * 1024);
 }
 
-unsigned int memGenVal()//Validation memory generator that always increses the memory location by 4
+unsigned int memGenVal0()//validation memory generator that always increses the memory location by 4
 {
 	static unsigned int addr = 0;
 	return (addr+=4) % (DRAM_SIZE / 4); 
+}
+
+unsigned int memGenVal1()//validation memory generator that always increses the memory location by 64
+{
+	static unsigned int addr = 0;
+	return (addr+=64) % (DRAM_SIZE / 4); 
 }
 
 
 // Direct Mapped Cache Simulator
 cacheResType cacheSimDM(unsigned int addr)
 {
-// This function accepts the memory address for the memory transaction and returns whether it caused a cache miss or a cache hit
+	// This function accepts the memory address for the memory transaction and
+	// returns whether it caused a cache miss or a cache hit
 	unsigned int NoL = CACHE_SIZE / LINESIZE;//number of lines
 	//static signed int cache[16384] = {};//initializing the cache as all 0s to make all locations invalid and putting in the max NoL
 	unsigned int offesb = (log2(LINESIZE));//log2: Returns the binary (base-2) logarithm of x MIGHT BE TOO LARGE
- 
-	unsigned int map = (addr >> (int)offesb) % NoL; //get the index
+
+	//addr = addr>>2;//this removes the byte offset of the data 
+	unsigned int map = (addr >> (int)offesb) % NoL;  //LINESIZE undefined TODO    //(#Blocks in cache)
 	if (cache[map] % 2 == 0)//if invalid
 	{
 		cache[map] = (addr>>16);//this gets the tag while ignoring the byte and word offset
 		cache[map] = cache[map] << 1;//making space for the one bit for valid
 		cache[map] += 1;//making valid
 		
-		cout << "¡CACHE VALIDATED!" << endl;
+		cout << "CACHE VALIDATED!" << endl;
 		return MISS;
 	}
 	else if (((cache[map] >> 1)/*&0xffff*/) != ((addr >> 16/*offesb) / NoL*/)))//if tag is incorrect
@@ -93,12 +102,14 @@ cacheResType cacheSimDM(unsigned int addr)
 		cache[map] = addr >> 16/*offesb) /NoL*/;//this gets the tag while ignoring the byte and word offset
 		cache[map] = cache[map] << 1;//making space for the one bit for valid
 		cache[map] += 1;//making valid
-		cout << "¡CACHE OVERWRITE!" << endl;
+		cout << "CACHE OVERWRITE!" << endl;
 		return MISS;
 	}
-	else//This is a hit
+	else
 	{	
-		//cout << map << endl;
+		cout << map << endl;
+		//cout<< (addr>>16)<<endl;
+		//cout<< (addr>>offesb) /NoL<<endl;
 		return HIT;
 	}
 }
@@ -116,8 +127,8 @@ int main()
 	//fill_n(cache, 16384, -1);
 	cout << "What linesize do you want to use in bytes? (binary number from 4-128)\n";
 	cin >> LINESIZE;
-	cout << "What Memory generator would you like (between A-F)\n";//v for validation mode
-	cin >> MG;//Memory generator
+	cout << "What Memory generator would you like (between A-F)\n";
+	cin >> MG;
 	cout << "Direct Mapped Cache Simulator\n";
 
 	for (int inst = 0; inst < NO_OF_Iterations; inst++)//picking which memGen to use
@@ -142,13 +153,15 @@ int main()
 		case 'f':
 		case 'F':
 			addr = memGenF(); break;
-		case 'v':
-		case 'V':
-			addr= memGenVal();break;//the validation memory Generator
+		case '0':
+			addr= memGenVal0();break;//the validation memory Generator 0
+		case '1':
+			addr= memGenVal1();break;//the validation memory Generator 1
 		}
 		r = cacheSimDM(addr);
 		if (r == HIT) hit++;
-		cout << "0x" << setfill('0') << setw(8) << hex << addr << " (" << msg[r] << ")\n";//print the address
+		cout << "0x" << setfill('0') << setw(8) << hex << addr << " (" << msg[r] << ")\n";
 	}
 	cout << "Hit ratio = " << (100.0*hit / NO_OF_Iterations) << endl;
+	//cout<<CACHE_SIZE/LINESIZE;
 }
