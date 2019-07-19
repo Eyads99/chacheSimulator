@@ -9,7 +9,7 @@ using namespace std;
 #define		CACHE_SIZE		(64*1024) //fixed
 
 unsigned int LINESIZE;
-static signed int cache[16384]={0};//cache at it's maximum number of lines 
+static signed int cache[16384]={0};//cache at it's maximum number of lines initializing the cache as all 0s to make all locations invalid
 
 enum cacheResType { MISS = 0, HIT = 1 };
 
@@ -82,21 +82,19 @@ cacheResType cacheSimDM(unsigned int addr)
 	// This function accepts the memory address for the memory transaction and
 	// returns whether it caused a cache miss or a cache hit
 	unsigned int NoL = CACHE_SIZE / LINESIZE;//number of lines
-	//static signed int cache[16384] = {};//initializing the cache as all 0s to make all locations invalid and putting in the max NoL
 	unsigned int offesb = (log2(LINESIZE));//log2: Returns the binary (base-2) logarithm of x MIGHT BE TOO LARGE
 
-	//addr = addr>>2;//this removes the byte offset of the data 
-	unsigned int map = (addr >> (int)offesb) % NoL;  //LINESIZE undefined TODO    //(#Blocks in cache)
+	unsigned int map = (addr >> (int)offesb) % NoL; //(#Blocks in cache)
 	if (cache[map] % 2 == 0)//if invalid
 	{
 		cache[map] = (addr>>16);//this gets the tag while ignoring the byte and word offset
 		cache[map] = cache[map] << 1;//making space for the one bit for valid
-		cache[map] += 1;//making valid
+		cache[map] += 1;//Making valid
 		
 		cout << "CACHE VALIDATED!" << endl;
 		return MISS;
 	}
-	else if (((cache[map] >> 1)/*&0xffff*/) != ((addr >> 16/*offesb) / NoL*/)))//if tag is incorrect
+	else if (((cache[map] >> 1)) != ((addr >> 16)))//if tag is incorrect
 	{
 		cache[map] = addr >> 16/*offesb) /NoL*/;//this gets the tag while ignoring the byte and word offset
 		cache[map] = cache[map] << 1;//making space for the one bit for valid
@@ -106,9 +104,6 @@ cacheResType cacheSimDM(unsigned int addr)
 	}
 	else
 	{	
-		//cout << map << endl;
-		//cout<< (addr>>16)<<endl;
-		//cout<< (addr>>offesb) /NoL<<endl;
 		return HIT;
 	}
 }
@@ -163,5 +158,4 @@ int main()
 	}
 	cout << "Hit ratio = " << (100.0*hit / NO_OF_Iterations) << endl;
 	cout << "Miss ratio = " << 100-(100.0*hit / NO_OF_Iterations) << endl;
-	//cout<<CACHE_SIZE/LINESIZE;
 }
